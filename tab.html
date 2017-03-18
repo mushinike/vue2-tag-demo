@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title></title>
+		<style>
+			*{padding: 0;margin: 0;}
+			body{font-size: 13px;width: 980px;margin:0 auto;text-align: left;}
+			.tabs li{list-style: none;}
+			.tabs-title{height: 30px;line-height: 30px;}
+			.tabs-title li{float: left;width: 100px;text-align: center;border: 1px solid #ccc;border-collapse: collapse;}
+			.tabs-title li.active{display:block;background: #999;}
+			.tabs-content{border: 1px solid #ccc;height:150px;}
+			.tabs-content li{display: none;text-align: left;}
+			.tabs-content li.active{display: block;}
+		</style>
+	</head>
+	<body>
+		<div id="app">
+			<tabs active-index="3" @change="change">
+				<tab-item title="选项卡1">选项卡内容1</tab-item>
+				<tab-item title="选项卡2">选项卡内容2</tab-item>
+				<tab-item title="选项卡3">选项卡内容3</tab-item>
+				<tab-item title="选项卡4">选项卡内容4</tab-item>
+			</tabs>
+			
+			<script type="text/template" id="tabs">
+				<div class="tabs">
+					<div class="tabs-title">
+						<ul>
+							<li @click="tabClick(key)" :class="{active:key==index}" v-for="(item,key) in items" v-text="item.title"></li>
+						</ul>
+					</div>
+					<div class="tabs-content">
+						<ul>
+							<slot></slot>
+						</ul>
+					</div>
+				</div>
+			</script>
+			<script type="text/template" id="tab-item">
+				<li :class="{active:flag}"><slot></slot></li>
+			</script>
+		</div>
+		
+		
+		<script src="js/vue.min.js"></script>
+		<script>
+			new Vue({
+				el:"#app",
+				components:{
+					"tabs":{
+						template:"#tabs",
+						props:["activeIndex"],
+						data:function(){
+							return {
+								items:[],
+								index:0
+							}
+						},
+						methods:{
+							tabClick:function(index){
+								this.index=index;
+								for(var i=0,ii=this.$children.length;i<ii;i++){
+										this.$children[i].flag=index==i?true:false;
+								}
+								
+								this.$emit("change",index);
+							}
+						},
+						mounted:function(){
+							this.index=this.activeIndex;
+							for(var i=0,ii=this.$children.length;i<ii;i++){
+								var child=this.$children[i];
+									this.items.push({title:child.title});
+									if(this.index==i){
+										child.flag=true;
+									}
+							}
+						}
+					},
+					"tab-item":{
+						template:"#tab-item",
+						props:["title"],
+						data:function(){
+							return {
+								flag:false
+							}
+						}
+					}
+				},
+				methods:{
+					change:function(index){
+						console.log(index);
+					}
+				}
+			});
+		</script>
+	</body>
+</html>
